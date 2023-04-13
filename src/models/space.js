@@ -18,10 +18,12 @@ const SpaceSchema = new mongoose.Schema({
     openTime: {
         type: String,
         required: [true, "Please provide an open time"],
+        validator: [validator.isTime, "Please provide a valid time"],
     },
     closeTime: {
         type: String,
         required: [true, "Please provide a close time"],
+        validator: [validator.isTime, "Please provide a valid time"],
     },
 });
 

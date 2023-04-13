@@ -1,4 +1,5 @@
 const Space = require("../models/space");
+const { isTimeBetween } = require("../utils/index");
 
 exports.createSpace = async (req, res, next) => {
     const { name, address, tel, openTime, closeTime } = req.body;
@@ -16,12 +17,34 @@ exports.createSpace = async (req, res, next) => {
     });
 };
 
-// filter
 exports.getSpaces = async (req, res, next) => {
-    const spaces = await Space.find();
+    const { startTime, endTime } = req.query;
+    let spaces;
+
+    if (req.user.role === "admin") {
+        spaces = await Space.find().select("-__v");
+    } else {
+        spaces = await Space.find({}).select("-_id -__v");
+    }
+
+    if (!startTime || !endTime) {
+        return res.status(200).json({
+            success: true,
+            count: spaces.length,
+            data: spaces,
+        });
+    }
+
+    const filtered = spaces.filter((space) => {
+        return (
+            isTimeBetween(space.openTime, space.closeTime, startTime) &&
+            isTimeBetween(space.openTime, space.closeTime, endTime)
+        );
+    });
     res.status(200).json({
         success: true,
-        data: spaces,
+        count: filtered.length,
+        data: filtered,
     });
 };
 

@@ -1,3 +1,4 @@
+const { Error } = require("mongoose");
 const User = require("../models/User");
 
 exports.getAlluser = async (req, res) => {
@@ -14,15 +15,18 @@ exports.deleteUser = async (req, res) => {
         const user = await User.findById(id);
         if (!user) {
             return res.status(404).json({
+                success: false,
                 message: "User not found",
             });
         }
         await user.remove();
         return res.status(200).json({
-            message: "User deleted",
+            success: true,
         });
     } catch (err) {
+        console.log(err.message);
         return res.status(500).json({
+            success: false,
             message: "Server Error",
         });
     }
@@ -35,6 +39,7 @@ exports.updateUser = async (req, res) => {
         const user = await User.findById(id);
         if (!user) {
             return res.status(404).json({
+                success: false,
                 message: "User not found",
             });
         }
@@ -53,19 +58,22 @@ exports.updateUser = async (req, res) => {
             }
         );
         return res.status(200).json({
-            message: "User updated",
+            success: true,
             data: newUser,
         });
     } catch (err) {
+        console.log(err.message);
         if (err instanceof Error.ValidationError) {
             const messages = Object.values(err.errors).map(
                 (val) => val.message
             );
             return res.status(400).json({
+                success: false,
                 message: messages.join(","),
             });
         }
         return res.status(500).json({
+            success: false,
             message: "Server Error",
         });
     }

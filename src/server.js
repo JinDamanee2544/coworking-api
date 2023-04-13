@@ -8,6 +8,7 @@ dotenv.config({ path: "src/config/config.env" });
 const connectDB = require("./config/db");
 const authRouter = require("./routes/auth");
 const userRouter = require("./routes/user");
+const spaceRouter = require("./routes/space");
 
 // connect to database
 connectDB();
@@ -18,6 +19,7 @@ app.use(cookieParser());
 
 app.use("/api/v1/auth", authRouter);
 app.use("/api/v1/users", userRouter);
+app.use("/api/v1/spaces", spaceRouter);
 
 const PORT = process.env.PORT || 8080;
 const NODE_ENV = process.env.NODE_ENV || "development";

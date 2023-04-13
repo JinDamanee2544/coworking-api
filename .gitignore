@@ -1,0 +1,5 @@
+node_modules
+db
+init-mongo.sh
+
+src/config/config.env

@@ -9,7 +9,7 @@ const connectDB = require("./config/db");
 const authRouter = require("./routes/auth");
 const userRouter = require("./routes/user");
 const spaceRouter = require("./routes/space");
-
+const apptRouter = require("./routes/appointment")
 // connect to database
 connectDB();
 
@@ -20,7 +20,7 @@ app.use(cookieParser());
 app.use("/api/v1/auth", authRouter);
 app.use("/api/v1/users", userRouter);
 app.use("/api/v1/spaces", spaceRouter);
-
+app.use("/api/v1/appointments",apptRouter);
 const PORT = process.env.PORT || 8080;
 const NODE_ENV = process.env.NODE_ENV || "development";
 const server = app.listen(PORT, () => {

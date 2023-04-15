@@ -25,6 +25,20 @@ const SpaceSchema = new mongoose.Schema({
         required: [true, "Please provide a close time"],
         validator: [validator.isTime, "Please provide a valid time"],
     },
+},{
+    toJSON:{virtuals:true},
+    toObject:{virtuals:true}
 });
+SpaceSchema.pre('remove',async function(next){
+    console.log(`Appointments being removed from hospital ${this._id}`)
+    await this.model('Appointment').deleteMany({hospital:this._id})
+    next();
+})
+SpaceSchema.virtual('appointments',{
+    ref:'Appointment',
+    localField:'_id',
+    foreignField:'space',
+    justOne:false
+})
 
 module.exports = mongoose.model("Space", SpaceSchema);

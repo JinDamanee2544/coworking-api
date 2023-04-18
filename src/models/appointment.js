@@ -1,4 +1,6 @@
 const mongoose=require('mongoose');
+const validator = require("validator");
+
 const AppointmentSchema = new mongoose.Schema({
     apptDate:{
         type:Date,

@@ -29,16 +29,17 @@ const SpaceSchema = new mongoose.Schema({
     toJSON:{virtuals:true},
     toObject:{virtuals:true}
 });
-SpaceSchema.pre('remove',async function(next){
-    console.log(`Appointments being removed from hospital ${this._id}`)
-    await this.model('Appointment').deleteMany({hospital:this._id})
-    next();
-})
 SpaceSchema.virtual('appointments',{
     ref:'Appointment',
     localField:'_id',
     foreignField:'space',
     justOne:false
 })
+SpaceSchema.pre('remove',async function(next){
+    console.log(`Appointments being removed from hospital ${this._id}`)
+    await this.model('Appointment').deleteMany({hospital:this._id})
+    next();
+})
 
-module.exports = mongoose.model("Space", SpaceSchema);
+
+module.exports = mongoose.model('Space', SpaceSchema);

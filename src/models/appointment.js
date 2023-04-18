@@ -23,7 +23,7 @@ const AppointmentSchema = new mongoose.Schema({
     },
     space:{
         type:mongoose.Schema.ObjectId,
-        ref:'space',
+        ref:'Space',
         required:true
     },
     createAt:{
@@ -31,4 +31,4 @@ const AppointmentSchema = new mongoose.Schema({
         default:Date.now
     }
 });
-module.exports=mongoose.model("Appointment",AppointmentSchema);
+module.exports=mongoose.model('Appointment',AppointmentSchema);

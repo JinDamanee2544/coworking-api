@@ -1,5 +1,6 @@
 
 const Appointment = require('../models/appointment');
+const Space = require('../models/space');
 exports.getAppointments = async(req,res,next)=>{
     let query;
     if(req.user.role!=='admin'){
@@ -30,7 +31,7 @@ exports.getAppointments = async(req,res,next)=>{
 exports.getAppointment = async(req,res,next)=>{
     try{
         const appointment= await Appointment.findById(req.params.id).populate({
-            path:'hospotal',
+            path:'space',
             select:'name description tel'
         });
         if(!appointment){
@@ -45,13 +46,18 @@ exports.getAppointment = async(req,res,next)=>{
         console.log(err);
         return res.status(500).json({success:false,message:"Cannot find appointment"})
     }
-}
+};
 exports.addAppointment=async(req,res,next)=>{
     try{
         req.body.space = req.params.spaceId;
         const space= await Space.findById(req.params.spaceId)
         if(!space){
             return res.status(404).json({success:false,message:`No space with the id of ${req.params.spaceId}`})
+        }
+        req.body.user=req.user.id;
+        const existedAppointments = await Appointment.find({user:req.user.id});
+        if(existedAppointments.length>=3&&req.user.role!=='admin'){
+            return res.status(400).json({success:false,message:`The user with ID ${req.user.id} has already made 3 appointments`})
         }
         const appointment = await Appointment.create(req.body);
         res.status(200).json({
@@ -63,14 +69,15 @@ exports.addAppointment=async(req,res,next)=>{
         console.log(err);
         return res.status(500).json({success:false,message:"Cannot create appointment"})
     }
-}
+};
 exports.updateAppointment=async(req,res,next)=>{
     try{
         let appointment= await Appointment.findById(req.params.id);
-        req.body.space = req.params.spaceId;
-        const space= await Space.findById(req.params.spaceId)
         if(!appointment){
             return res.status(404).json({success:false,message:`No appointment with the id of ${req.params.id}`})
+        }
+        if(appointment.user.toString()!==req.user.id&&req.user.role!=='admin'){
+            return res.status(401).json({success:false,message:`User ${req.user.id} is not authorized to update this appointment`})
         }
         appointment=await Appointment.findByIdAndUpdate(req.params.id,req.body,{
             new:true,
@@ -91,6 +98,9 @@ exports.deleteAppointment=async(req,res,next)=>{
         const appointment=await Appointment.findById(req.params.id);
         if(!appointment){
             return res.status(404).json({success:false,message:`No appointment with the id of ${req.params.id}`})
+        }
+        if(appointment.user.toString()!==req.user.id&&req.user.role!=='admin'){
+            return res.status(401).json({success:false,message:`User ${req.user.id} is not authorized to delete this bootcamp`})
         }
         await appointment.remove();
         res.status(200).json({

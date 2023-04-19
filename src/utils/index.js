@@ -1,19 +1,22 @@
-exports.isTimeBetween = (start, end, check) => {
-    if (check.length === 4) {
-        check = `0${check}`;
-    }
+exports.isTimeBetween = (start, end, checkstart, checkend) => {
 
     // Parse the input strings into Date objects
     const startDate = new Date(`2000-01-01T${start}:00`);
     const endDate = new Date(`2000-01-01T${end}:00`);
-    const checkDate = new Date(`2000-01-01T${check}:00`);
+    const checkStartDate = new Date(`2000-01-01T${checkstart}:00`);
+    const checkEndDate = new Date(`2000-01-01T${checkend}:00`);
+    return checkStartDate>=startDate && checkEndDate<=endDate;
+};
+exports.isOverlap=(start, end, checkstart, checkend) => {
 
-    // Check if the end time is earlier than the start time, indicating that the time range spans two days
-    if (endDate < startDate) {
-        // Add 1 day to the end time
-        endDate.setDate(endDate.getDate() + 1);
-    }
-
-    // Compare the times
-    return checkDate >= startDate && checkDate <= endDate;
+    // Parse the input strings into Date objects
+    const startDate = new Date(`2000-01-01T${start}:00`);
+    const endDate = new Date(`2000-01-01T${end}:00`);
+    const checkStartDate = new Date(`2000-01-01T${checkstart}:00`);
+    const checkEndDate = new Date(`2000-01-01T${checkend}:00`);
+    if(startDate<=checkStartDate&&checkStartDate<endDate)return false;
+    if(startDate<checkEndDate&&checkEndDate<=endDate)return false;
+    if(checkStartDate<=startDate&&startDate<checkEndDate)return false;
+    if(checkEndDate<endDate&&endDate<=checkEndDate)return false;
+    return true;
 };

@@ -1,6 +1,7 @@
 
 const Appointment = require('../models/appointment');
 const Space = require('../models/space');
+const {isTimeBetween,isOverlap} = require('../utils/index')
 exports.getAppointments = async(req,res,next)=>{
     let query;
     if(req.user.role!=='admin'){
@@ -54,10 +55,22 @@ exports.addAppointment=async(req,res,next)=>{
         if(!space){
             return res.status(404).json({success:false,message:`No space with the id of ${req.params.spaceId}`})
         }
+        if(req.body.startTime>req.body.endTime){
+            return res.status(400).json({success:false,message:"You can only reserve start time before end time"});
+        }
+        if(!isTimeBetween(space.startTime,space.endTime,req.body.startTime,req.body.endTime)){
+            return res.status(400).json({success:false,message:"You can only reserve time when Co-Working space is open"});
+        }
         req.body.user=req.user.id;
         const existedAppointments = await Appointment.find({user:req.user.id});
         if(existedAppointments.length>=3&&req.user.role!=='admin'){
             return res.status(400).json({success:false,message:`The user with ID ${req.user.id} has already made 3 appointments`})
+        }
+        const allAppointments = await Appointment.find();
+        for(let i=0;i<allAppointments.length;i++){
+            if(allAppointments[i].apptDate == req.body.apptDate&&allAppointments[i].space == req.body.space &&isOverlap(req.body.startTime,req.body.endTime,allAppointments[i].startTime,allAppointments[i].endTime)){
+                return res.status(400).json({success:false,message:'Cannot reserve with time overlap to other appointments'});
+            }
         }
         const appointment = await Appointment.create(req.body);
         res.status(200).json({
@@ -78,6 +91,18 @@ exports.updateAppointment=async(req,res,next)=>{
         }
         if(appointment.user.toString()!==req.user.id&&req.user.role!=='admin'){
             return res.status(401).json({success:false,message:`User ${req.user.id} is not authorized to update this appointment`})
+        }
+        if(req.body.startTime>req.body.endTime){
+            return res.status(400).json({success:false,message:"You can only reserve start time before end time"});
+        }
+        if(!isTimeBetween(space.startTime,space.endTime,req.body.startTime,req.body.endTime)){
+            return res.status(400).json({success:false,message:"You can only reserve time when Co-Working space is open"});
+        }
+        const allAppointments = await Appointment.find();
+        for(let i=0;i<allAppointments.length;i++){
+            if(allAppointments[i]!==appointment &&allAppointments[i].apptDate == req.body.apptDate&&allAppointments[i].space == req.body.space &&isOverlap(req.body.startTime,req.body.endTime,allAppointments[i].startTime,allAppointments[i].endTime)){
+                return res.status(400).json({success:false,message:'Cannot reserve with time overlap to other appointments'});
+            }
         }
         appointment=await Appointment.findByIdAndUpdate(req.params.id,req.body,{
             new:true,

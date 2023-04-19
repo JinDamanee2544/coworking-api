@@ -51,6 +51,7 @@ exports.getAppointment = async(req,res,next)=>{
 exports.addAppointment=async(req,res,next)=>{
     try{
         req.body.space = req.params.spaceId;
+        req.body.apptDate = new Date(req.body.apptDate);
         const space= await Space.findById(req.params.spaceId)
         if(!space){
             return res.status(404).json({success:false,message:`No space with the id of ${req.params.spaceId}`})
@@ -58,7 +59,7 @@ exports.addAppointment=async(req,res,next)=>{
         if(req.body.startTime>req.body.endTime){
             return res.status(400).json({success:false,message:"You can only reserve start time before end time"});
         }
-        if(!isTimeBetween(space.startTime,space.endTime,req.body.startTime,req.body.endTime)){
+        if(isTimeBetween(space.startTime,space.endTime,req.body.startTime,req.body.endTime)){
             return res.status(400).json({success:false,message:"You can only reserve time when Co-Working space is open"});
         }
         req.body.user=req.user.id;
@@ -68,9 +69,12 @@ exports.addAppointment=async(req,res,next)=>{
         }
         const allAppointments = await Appointment.find();
         for(let i=0;i<allAppointments.length;i++){
-            if(allAppointments[i].apptDate == req.body.apptDate&&allAppointments[i].space == req.body.space &&isOverlap(req.body.startTime,req.body.endTime,allAppointments[i].startTime,allAppointments[i].endTime)){
+            const id =allAppointments[i].space._id.toString();
+            if(allAppointments[i].apptDate == req.body.apptDate&& id == req.body.space &&isOverlap(req.body.startTime,req.body.endTime,allAppointments[i].startTime,allAppointments[i].endTime)){
                 return res.status(400).json({success:false,message:'Cannot reserve with time overlap to other appointments'});
             }
+            console.log(allAppointments[i].apptDate);
+            console.log(req.body.apptDate)
         }
         const appointment = await Appointment.create(req.body);
         res.status(200).json({
@@ -100,7 +104,7 @@ exports.updateAppointment=async(req,res,next)=>{
         }
         const allAppointments = await Appointment.find();
         for(let i=0;i<allAppointments.length;i++){
-            if(allAppointments[i]!==appointment &&allAppointments[i].apptDate == req.body.apptDate&&allAppointments[i].space == req.body.space &&isOverlap(req.body.startTime,req.body.endTime,allAppointments[i].startTime,allAppointments[i].endTime)){
+            if(allAppointments[i]._id!==req.params.id &&allAppointments[i].apptDate == req.body.apptDate&&allAppointments[i].space == req.body.space &&isOverlap(req.body.startTime,req.body.endTime,allAppointments[i].startTime,allAppointments[i].endTime)){
                 return res.status(400).json({success:false,message:'Cannot reserve with time overlap to other appointments'});
             }
         }

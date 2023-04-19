@@ -18,5 +18,6 @@ exports.isOverlap=(start, end, checkstart, checkend) => {
     if(startDate<checkEndDate&&checkEndDate<=endDate)return false;
     if(checkStartDate<=startDate&&startDate<checkEndDate)return false;
     if(checkEndDate<endDate&&endDate<=checkEndDate)return false;
+    if(checkStartDate==startDate&&checkEndDate==endDate)return false;
     return true;
 };

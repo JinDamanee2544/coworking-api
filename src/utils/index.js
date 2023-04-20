@@ -1,23 +1,28 @@
+exports.timeToInt=(time)=>{
+    const timeSplit = time.split(":")
+    const timeInt=parseInt(timeSplit[0])*60+parseInt(timeSplit[1])
+    return timeInt;
+}
 exports.isTimeBetween = (start, end, checkstart, checkend) => {
 
     // Parse the input strings into Date objects
-    const startDate = new Date(`2000-01-01T${start}:00`);
-    const endDate = new Date(`2000-01-01T${end}:00`);
-    const checkStartDate = new Date(`2000-01-01T${checkstart}:00`);
-    const checkEndDate = new Date(`2000-01-01T${checkend}:00`);
-    return checkStartDate>=startDate && checkEndDate<=endDate;
+    const startTime = this.timeToInt(start)
+    const endTime = this.timeToInt(end);
+    const checkStartTime =this.timeToInt(checkstart);
+    const checkEndTime =this.timeToInt(checkend);
+    if(startTime<=checkStartTime && endTime>=checkEndTime){
+        return true
+    }
+    return false
 };
 exports.isOverlap=(start, end, checkstart, checkend) => {
 
     // Parse the input strings into Date objects
-    const startDate = new Date(`2000-01-01T${start}:00`);
-    const endDate = new Date(`2000-01-01T${end}:00`);
-    const checkStartDate = new Date(`2000-01-01T${checkstart}:00`);
-    const checkEndDate = new Date(`2000-01-01T${checkend}:00`);
-    if(startDate<=checkStartDate&&checkStartDate<endDate)return false;
-    if(startDate<checkEndDate&&checkEndDate<=endDate)return false;
-    if(checkStartDate<=startDate&&startDate<checkEndDate)return false;
-    if(checkEndDate<endDate&&endDate<=checkEndDate)return false;
-    if(checkStartDate==startDate&&checkEndDate==endDate)return false;
+    const startTime = this.timeToInt(start)
+    const endTime = this.timeToInt(end);
+    const checkStartTime =this.timeToInt(checkstart);
+    const checkEndTime =this.timeToInt(checkend);
+    if(endTime<=checkStartTime)return false;
+    if(checkEndTime<=startTime)return false;
     return true;
 };

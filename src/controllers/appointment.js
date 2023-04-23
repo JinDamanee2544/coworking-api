@@ -59,7 +59,6 @@ exports.addAppointment=async(req,res,next)=>{
         if(timeToInt(req.body.startTime)>timeToInt(req.body.endTime)){
             return res.status(400).json({success:false,message:"You can only reserve start time before end time"});
         }
-        console.log(timeToInt(space.openTime),timeToInt(space.closeTime),timeToInt(req.body.startTime),timeToInt(req.body.endTime))
         if(!isTimeBetween(space.openTime,space.closeTime,req.body.startTime,req.body.endTime)){
             return res.status(400).json({success:false,message:"You can only reserve time when Co-Working space is open"});
         }
@@ -94,7 +93,7 @@ exports.updateAppointment=async(req,res,next)=>{
         req.body.apptDate=new Date(req.body.apptDate)
         const space= await Space.findById(req.body.space)
         if(!space){
-            return res.status(404).json({success:false,message:`No space with the id of ${req.params.spaceId}`})
+            return res.status(404).json({success:false,message:`No space with the id of ${req.body.space}`})
         }
         if(!appointment){
             return res.status(404).json({success:false,message:`No appointment with the id of ${req.params.id}`})

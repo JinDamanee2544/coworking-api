@@ -1,7 +1,18 @@
-const express=require('express')
-const {getAppointments,getAppointment,addAppointment,updateAppointment,deleteAppointment} = require('../controllers/appointment')
-const router = express.Router({mergeParams:true})
-const {protect,authorize}= require('../middlewares/auth')
-router.route('/').get(protect,getAppointments).post(protect,authorize('admin','user'),addAppointment);
-router.route('/:id').get(protect,getAppointment).put(protect,authorize('admin','user'),updateAppointment).delete(protect,authorize('admin','user'),deleteAppointment);
-module.exports=router
+const express = require("express");
+const {
+    getAppointments,
+    getAppointment,
+    addAppointment,
+    updateAppointment,
+    deleteAppointment,
+} = require("../controllers/appointment");
+const router = express.Router({ mergeParams: true });
+const { protect } = require("../middlewares/auth");
+
+router.route("/").get(protect, getAppointments).post(protect, addAppointment);
+router
+    .route("/:id")
+    .get(protect, getAppointment)
+    .put(protect, updateAppointment)
+    .delete(protect, deleteAppointment);
+module.exports = router;

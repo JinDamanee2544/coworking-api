@@ -1,11 +1,16 @@
 const Space = require("../models/space");
 const { isTimeBetween } = require("../utils/index");
+const { timeToInt } = require("../utils/index");
 
 exports.createSpace = async (req, res, next) => {
     const { name, address, tel, openTime, closeTime } = req.body;
-    if(openTime>closeTime){
-        return res.status(400).json({success:false,message:"Open time must come before close time"});
+    if (openTime > closeTime) {
+        return res.status(400).json({
+            success: false,
+            message: "Open time must come before close time",
+        });
     }
+
     const space = await Space.create({
         name,
         address,
@@ -20,38 +25,72 @@ exports.createSpace = async (req, res, next) => {
 };
 
 exports.getSpaces = async (req, res, next) => {
-    const { startTime, endTime } = req.query;
+    const { startTime, endTime, address, tel, name } = req.query;
     let spaces;
+    let query = Space.find();
 
     if (req.user.role === "admin") {
-        spaces = await Space.find().select("-__v");
+        spaces = query.select("-__v");
     } else {
-        spaces = await Space.find({}).select("-_id -__v");
+        spaces = query.select("-_id -__v");
     }
 
-    if (!startTime || !endTime) {
-        return res.status(200).json({
-            success: true,
-            count: spaces.length,
-            data: spaces,
+    if (address) {
+        query = query.find({
+            address: {
+                $regex: address,
+                $options: "i",
+            },
+        });
+    }
+    if (name) {
+        query = query.find({
+            name: {
+                $regex: name,
+                $options: "i",
+            },
+        });
+    }
+    if (tel) {
+        query = query.find({
+            tel: {
+                $regex: tel,
+                $options: "i",
+            },
         });
     }
 
-    const filtered = spaces.filter((space) => {
-        return (
-            isTimeBetween(space.openTime, space.closeTime, startTime) &&
-            isTimeBetween(space.openTime, space.closeTime, endTime)
-        );
-    });
+    if (startTime && endTime) {
+        if (timeToInt(startTime) > timeToInt(endTime)) {
+            return res.status(400).json({
+                success: false,
+                message: "Start time must come before end time",
+            });
+        }
+        query = query.then((spaces) => {
+            return spaces.filter((space) => {
+                return isTimeBetween(
+                    space.openTime,
+                    space.closeTime,
+                    startTime,
+                    endTime
+                );
+            });
+        });
+    }
+
+    spaces = await query;
+
     res.status(200).json({
         success: true,
-        count: filtered.length,
-        data: filtered,
+        count: spaces.length,
+        data: spaces,
     });
 };
 
 exports.getSpaceByID = async (req, res, next) => {
     const spaceID = req.params.id;
+
     try {
         const space = await Space.findById(spaceID);
         res.status(200).json({

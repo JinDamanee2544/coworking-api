@@ -3,7 +3,7 @@ const Space = require("../models/space");
 const { isTimeBetween, isOverlap, timeToInt } = require("../utils/index");
 exports.getReservations = async (req, res, next) => {
     let query;
-    if (req.user.role !== "admin") {
+    if (req.user.role !== 'admin') {
         query = Reservation.find({ user: req.user.id }).populate({
             path: "space",
             select: "name province tel",
@@ -68,12 +68,6 @@ exports.addReservation = async (req, res, next) => {
                 message: "You can only reserve start time before end time",
             });
         }
-        console.log(
-            timeToInt(space.openTime),
-            timeToInt(space.closeTime),
-            timeToInt(req.body.startTime),
-            timeToInt(req.body.endTime)
-        );
         if (
             !isTimeBetween(
                 space.openTime,
@@ -139,7 +133,7 @@ exports.updateReservation = async (req, res, next) => {
         if (!space) {
             return res.status(404).json({
                 success: false,
-                message: `No space with the id of ${req.params.spaceId}`,
+                message: `No space with the id of ${req.body.space}`,
             });
         }
         if (!reservation) {

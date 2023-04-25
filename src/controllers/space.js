@@ -4,11 +4,11 @@ const { timeToInt } = require("../utils/index");
 
 exports.createSpace = async (req, res, next) => {
     const { name, address, tel, openTime, closeTime } = req.body;
-    if (openTime > closeTime) {
-        return res.status(400).json({
-            success: false,
-            message: "Open time must come before close time",
-        });
+    if(timeToInt(openTime)>timeToInt(closeTime)){
+            return res.status(400).json({
+                success: false,
+                message: "Open time must come before close time",
+            });
     }
 
     const space = await Space.create({
@@ -117,7 +117,12 @@ exports.updateSpace = async (req, res, next) => {
                 success: false,
                 message: "Space not found",
             });
-
+        if(timeToInt(openTime)>timeToInt(closeTime)){
+            return res.status(400).json({
+                success: false,
+                message: "Open time must come before close time",
+            });
+        }
         const newSpace = await Space.findByIdAndUpdate(
             spaceID,
             {

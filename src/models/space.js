@@ -29,6 +29,10 @@ const SpaceSchema = new mongoose.Schema(
             required: [true, "Please provide a close time"],
             validator: [validator.isTime, "Please provide a valid time"],
         },
+        createAt: {
+            type: Date,
+            default: Date.now,
+        },
     },
     {
         toJSON: { virtuals: true },

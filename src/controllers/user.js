@@ -1,7 +1,7 @@
 const { Error } = require("mongoose");
 const User = require("../models/User");
 
-exports.getAlluser = async (req, res) => {
+exports.getUsers = async (req, res) => {
     const users = await User.find({}).select("name email tel role");
     return res.status(200).json({
         success: true,

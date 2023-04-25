@@ -88,7 +88,7 @@ exports.getSpaces = async (req, res, next) => {
     });
 };
 
-exports.getSpaceByID = async (req, res, next) => {
+exports.getSpace = async (req, res, next) => {
     const spaceID = req.params.id;
 
     try {

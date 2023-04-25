@@ -13,12 +13,14 @@ const router = express.Router();
 
 router.use("/:spaceId/reservations", reservationRouter);
 router
-    .get("/", protect, getSpaces)
-    .post("/", protect, authorize("admin"), createSpace);
+    .route("/")
+    .get(protect, getSpaces)
+    .post(protect, authorize("admin"), createSpace);
 
 router
-    .get("/:id", protect, getSpace)
-    .put("/:id", protect, authorize("admin"), updateSpace)
-    .delete("/:id", protect, authorize("admin"), deleteSpace);
+    .route("/:id")
+    .get(protect, getSpace)
+    .put(protect, authorize("admin"), updateSpace)
+    .delete(protect, authorize("admin"), deleteSpace);
 
 module.exports = router;

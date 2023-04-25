@@ -4,10 +4,11 @@ const { Router } = require("express");
 const { authorize, protect } = require("../middlewares/auth");
 const router = Router();
 
-router.get("/", protect, authorize("admin"), getUsers);
+router.route("/").get(protect, authorize("admin"), getUsers);
 
 router
-    .delete("/:id", protect, authorize("admin"), deleteUser)
-    .put("/:id", protect, authorize("admin"), updateUser);
+    .route("/:id")
+    .delete(protect, authorize("admin"), deleteUser)
+    .put(protect, authorize("admin"), updateUser);
 
 module.exports = router;

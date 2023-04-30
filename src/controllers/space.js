@@ -4,11 +4,11 @@ const { timeToInt } = require("../utils/index");
 
 exports.createSpace = async (req, res, next) => {
     const { name, address, tel, openTime, closeTime } = req.body;
-    if(timeToInt(openTime)>timeToInt(closeTime)){
-            return res.status(400).json({
-                success: false,
-                message: "Open time must come before close time",
-            });
+    if (timeToInt(openTime) > timeToInt(closeTime)) {
+        return res.status(400).json({
+            success: false,
+            message: "Open time must come before close time",
+        });
     }
 
     const space = await Space.create({
@@ -28,12 +28,7 @@ exports.getSpaces = async (req, res, next) => {
     const { startTime, endTime, address, tel, name } = req.query;
     let spaces;
     let query = Space.find();
-
-    if (req.user.role === "admin") {
-        spaces = query.select("-__v");
-    } else {
-        spaces = query.select("-_id -__v");
-    }
+    query = query.select("-__v");
 
     if (address) {
         query = query.find({
@@ -59,12 +54,18 @@ exports.getSpaces = async (req, res, next) => {
             },
         });
     }
-
     if (startTime && endTime) {
-        if (timeToInt(startTime) > timeToInt(endTime)) {
+        try {
+            if (timeToInt(startTime) > timeToInt(endTime)) {
+                return res.status(400).json({
+                    success: false,
+                    message: "Start time must come before end time",
+                });
+            }
+        } catch {
             return res.status(400).json({
                 success: false,
-                message: "Start time must come before end time",
+                message: "Invalid time format",
             });
         }
         query = query.then((spaces) => {
@@ -78,9 +79,7 @@ exports.getSpaces = async (req, res, next) => {
             });
         });
     }
-
     spaces = await query;
-
     res.status(200).json({
         success: true,
         count: spaces.length,
@@ -92,7 +91,7 @@ exports.getSpace = async (req, res, next) => {
     const spaceID = req.params.id;
 
     try {
-        const space = await Space.findById(spaceID);
+        const space = await Space.findById(spaceID).select("-__v");
         res.status(200).json({
             success: true,
             data: space,
@@ -117,7 +116,7 @@ exports.updateSpace = async (req, res, next) => {
                 success: false,
                 message: "Space not found",
             });
-        if(timeToInt(openTime)>timeToInt(closeTime)){
+        if (timeToInt(openTime) > timeToInt(closeTime)) {
             return res.status(400).json({
                 success: false,
                 message: "Open time must come before close time",
